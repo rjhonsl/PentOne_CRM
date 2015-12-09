@@ -17,6 +17,8 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
+import com.santeh.petone.crm.DBase.DB_Helper_AquaCRM;
+import com.santeh.petone.crm.DBase.DB_Query_AquaCRM;
 import com.santeh.petone.crm.R;
 import com.santeh.petone.crm.Utils.FusedLocation;
 import com.santeh.petone.crm.Utils.Helper;
@@ -33,6 +35,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     CircleOptions circleOptions_addLocation;
     Circle mapcircle;
 
+    DB_Helper_AquaCRM dbHelper;
+    DB_Query_AquaCRM db;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -47,6 +52,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         fusedLocation = new FusedLocation(context, activity);
         fusedLocation.buildGoogleApiClient(context);
         fusedLocation.connectToApiClient();
+
+        dbHelper = new DB_Helper_AquaCRM(this);
+        db = new DB_Query_AquaCRM(this);
+        db.open();
 
     }
 
@@ -152,12 +161,17 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
             }
         });
-
-
-
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        db.open();
+    }
 
-
-
+    @Override
+    protected void onPause() {
+        super.onPause();
+        db.close();
+    }
 }

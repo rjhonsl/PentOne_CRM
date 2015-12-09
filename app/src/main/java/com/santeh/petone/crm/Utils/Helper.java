@@ -3,7 +3,12 @@ package com.santeh.petone.crm.Utils;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Typeface;
+import android.graphics.drawable.ColorDrawable;
+import android.location.LocationManager;
+import android.net.wifi.WifiInfo;
+import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.provider.Settings;
 import android.text.TextUtils;
@@ -12,6 +17,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -71,6 +77,27 @@ public class Helper {
 
 
     public static class Common{
+
+
+        public static Dialog dialogThemedYesNO(Activity activity, String prompt, String title, String strButton1, String strButton2, int resIdColor){
+            final Dialog d = new Dialog(activity);//
+            d.requestWindowFeature(Window.FEATURE_NO_TITLE);
+            d.setContentView(R.layout.dialog_material_themed_yesno);//Set the xml view of the dialog
+            Button btn1 = (Button) d.findViewById(R.id.btn_dialog_yesno_opt1);
+            Button btn2 = (Button) d.findViewById(R.id.btn_dialog_yesno_opt2);
+            TextView txttitle = (TextView) d.findViewById(R.id.dialog_yesno_title);
+            TextView txtprompt = (TextView) d.findViewById(R.id.dialog_yesno_prompt);
+
+            txtprompt.setText(prompt);
+            txttitle.setText(title);
+            txttitle.setBackground(activity.getResources().getDrawable(resIdColor));
+            btn1.setText(strButton1);
+            btn2.setText(strButton2);
+            d.show();
+
+            return d;
+        }
+
 
         public static void toastShort(Activity context, String msg){
             LayoutInflater inflater = context.getLayoutInflater();
@@ -140,7 +167,68 @@ public class Helper {
             return d;
         }
 
+
+        public static void hideKeyboardOnLoad(Activity activity){
+            activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
+        }
+
+
+        public static String getMacAddress(Context context){
+            WifiManager manager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
+            WifiInfo info = manager.getConnectionInfo();
+            return info.getMacAddress();
+        }
+
+
     }///////////////////////END OF COMMON//////////////////////
 
+
+    public static class Random{
+        public static Dialog initProgressDialog(Activity activity){
+            Dialog PD = new Dialog(activity);
+            PD.requestWindowFeature(Window.FEATURE_NO_TITLE);
+            PD.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
+            PD.setCancelable(false);
+            PD.setContentView(R.layout.progressdialog);
+            return  PD;
+        }
+
+
+        public static void isLocationAvailablePrompt(final Context context, Activity activity){
+            LocationManager lm = (LocationManager)context.getSystemService(Context.LOCATION_SERVICE);
+            boolean gps_enabled = false;
+            boolean network_enabled = false;
+
+            try {
+                gps_enabled = lm.isProviderEnabled(LocationManager.GPS_PROVIDER);
+            } catch(Exception ex) {}
+
+            try {
+                network_enabled = lm.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
+            } catch(Exception ex) {}
+
+            if(!gps_enabled) {
+                final Dialog d = Common.dialogThemedYesNO(activity, "Location services is needed to use this application. Please turn on Location in settings", "GPS Service", "OK", "No", R.color.red);
+                Button b1 = (Button) d.findViewById(R.id.btn_dialog_yesno_opt1);
+                Button b2 = (Button) d.findViewById(R.id.btn_dialog_yesno_opt2);
+
+                b2.setVisibility(View.GONE);
+                d.setCancelable(false);
+                d.show();
+
+                b1.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        d.hide();
+                        Intent gpsOptionsIntent = new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                        context.startActivity(gpsOptionsIntent);
+
+                    }
+                });
+
+            }
+        }
+
+    }
 
 }

@@ -1,6 +1,7 @@
 package com.santeh.petone.crm.DBase;
 
 import android.content.Context;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
@@ -46,6 +47,13 @@ public class DB_Query_AquaCRM {
 	/********************************************
 	 * 				SELECTS						*
 	 ********************************************/
+
+	public int getUser_Count() {
+		String query = "SELECT * FROM "+DB_Helper_AquaCRM.TBL_USERS+";";
+		String[] params = new String[] {};
+		Cursor cur = db.rawQuery(query, params);
+		return cur.getCount();
+	}
 
 
 	/********************************************

@@ -105,8 +105,8 @@ public class DB_Helper_AquaCRM extends SQLiteOpenHelper {
 					"(" +
 					CL_USERS_ID				+ " INTEGER PRIMARY KEY AUTOINCREMENT, " +
 					CL_USERS_userlvl 		+ " INTEGER, " +
-					CL_USERS_firstName 			+ " TEXT, " +
-					CL_USERS_lastName 			+ " TEXT, " +
+					CL_USERS_firstName 		+ " TEXT, " +
+					CL_USERS_lastName 		+ " TEXT, " +
 					CL_USERS_username 		+ " TEXT, " +
 					CL_USERS_password 		+ " TEXT, " +
 					CL_USERS_deviceid 		+ " TEXT, " +
