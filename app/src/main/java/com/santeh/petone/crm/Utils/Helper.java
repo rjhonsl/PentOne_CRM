@@ -7,6 +7,8 @@ import android.content.Intent;
 import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
 import android.location.LocationManager;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Build;
@@ -27,6 +29,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
+import com.santeh.petone.crm.Obj.Var;
 import com.santeh.petone.crm.R;
 
 /**
@@ -34,6 +37,98 @@ import com.santeh.petone.crm.R;
  */
 public class Helper {
 
+
+    public static class variables{
+
+        public static void setGlobalVar_currentUserID(int ID, Activity activity){
+            ((Var) activity.getApplication()).setCurrentuser(ID);
+        }
+
+        public static void setGlobalVar_currentlevel(int lvl, Activity activity){
+            ((Var) activity.getApplication()).setCurrentuserLvl(lvl);
+        }
+
+        public static int getGlobalVar_currentUserID( Activity activity ){
+            return  ((Var) activity.getApplication()).getCurrentuser();
+        }
+
+        public static int getGlobalVar_currentLevel(Activity activity){
+            return  ((Var) activity.getApplication()).getCurrentuserLvl();
+        }
+
+
+        public static String getGlobalVar_currentUserName(Activity activity){
+            return  ((Var) activity.getApplication()).getCurrentUserName();
+        }
+
+        public static void setGlobalVar_currentUsername(String username, Activity activity ){
+            ((Var) activity.getApplication()).setCurrentUserName(username);
+        }
+
+
+        public static String getGlobalVar_currentUserFirstname( Activity activity ){
+            return  ((Var) activity.getApplication()).getCurrentUserFirstname();
+        }
+
+
+        public static String getGlobalVar_DateAdded( Activity activity ){
+            return  ((Var) activity.getApplication()).getDateAddedToDB();
+        }
+
+        public static void setGlobalVar_DateAddedToDb(String date, Activity activity ){
+            ((Var) activity.getApplication()).setDateAddedToDB(date);
+        }
+
+
+        public static void setGlobalVar_currentFirstname(String firstname, Activity activity ){
+            ((Var) activity.getApplication()).setCurrentUserFirstname(firstname);
+        }
+
+
+        public static String getGlobalVar_currentUserLastname( Activity activity ){
+            return  ((Var) activity.getApplication()).getCurrentUserLastname();
+        }
+
+        public static void setGlobalVar_currentLastname(String lastname, Activity activity ){
+            ((Var) activity.getApplication()).setCurrentUserLastname(lastname);
+        }
+
+
+        public static String getGlobalVar_currentUserPassword(Activity activity){
+            return  ((Var) activity.getApplication()).getCurrentPassword();
+        }
+
+        public static void setGlobalVar_currentUserpassword(String password, Activity activity ){
+            ((Var) activity.getApplication()).setCurrentPassword(password);
+        }
+
+
+        public static String getGlobalVar_currentAssignedArea( Activity activity ){
+            return  ((Var) activity.getApplication()).getAssignedArea();
+        }
+
+        public static void setGlobalVar_currentAssignedArea(String area, Activity activity ){
+            ((Var) activity.getApplication()).setAssignedArea(area);
+        }
+
+        public static int getGlobalVar_currentisActive( Activity activity ){
+            return  ((Var) activity.getApplication()).getIsactive();
+        }
+
+        public static void setGlobalVar_currentIsActive(int isactive, Activity activity ){
+            ((Var) activity.getApplication()).setIsactive(isactive);
+        }
+
+        public static String getGlobalVar_currentDeviceID(Activity activity){
+            return  ((Var) activity.getApplication()).getDeviceID();
+        }
+
+        public static void setGlobalVar_deviceID(String deviceID, Activity activity ){
+            ((Var) activity.getApplication()).setDeviceID(deviceID);
+        }
+
+
+    }
     public static class Map{
 
 
@@ -73,10 +168,59 @@ public class Helper {
                     .strokeWidth(strokeWidth);
             return circleOptions;
         }
+
+
+        public static void isLocationAvailablePrompt(final Context context, Activity activity){
+            LocationManager lm = (LocationManager)context.getSystemService(Context.LOCATION_SERVICE);
+            boolean gps_enabled = false;
+            boolean network_enabled = false;
+
+            try {
+                gps_enabled = lm.isProviderEnabled(LocationManager.GPS_PROVIDER);
+            } catch(Exception ex) {}
+
+            try {
+                network_enabled = lm.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
+            } catch(Exception ex) {}
+
+            if(!gps_enabled) {
+                final Dialog d = Common.dialogThemedYesNO(activity, "Location services is needed to use this application. Please turn on Location in settings", "GPS Service", "OK", "No", R.color.red);
+                Button b1 = (Button) d.findViewById(R.id.btn_dialog_yesno_opt1);
+                Button b2 = (Button) d.findViewById(R.id.btn_dialog_yesno_opt2);
+
+                b2.setVisibility(View.GONE);
+                d.setCancelable(false);
+                d.show();
+
+                b1.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        d.hide();
+                        Intent gpsOptionsIntent = new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                        context.startActivity(gpsOptionsIntent);
+
+                    }
+                });
+
+            }
+        }
+
+
     }/////////////////END OF MAP//////////////////////
 
 
+
+
     public static class Common{
+
+        public static boolean isNetworkAvailable(Context context) {
+
+            ConnectivityManager connectivityManager
+                    = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+            NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+
+            return activeNetworkInfo != null && activeNetworkInfo.isConnected();
+        }
 
 
         public static Dialog dialogThemedYesNO(Activity activity, String prompt, String title, String strButton1, String strButton2, int resIdColor){
@@ -194,40 +338,7 @@ public class Helper {
         }
 
 
-        public static void isLocationAvailablePrompt(final Context context, Activity activity){
-            LocationManager lm = (LocationManager)context.getSystemService(Context.LOCATION_SERVICE);
-            boolean gps_enabled = false;
-            boolean network_enabled = false;
 
-            try {
-                gps_enabled = lm.isProviderEnabled(LocationManager.GPS_PROVIDER);
-            } catch(Exception ex) {}
-
-            try {
-                network_enabled = lm.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
-            } catch(Exception ex) {}
-
-            if(!gps_enabled) {
-                final Dialog d = Common.dialogThemedYesNO(activity, "Location services is needed to use this application. Please turn on Location in settings", "GPS Service", "OK", "No", R.color.red);
-                Button b1 = (Button) d.findViewById(R.id.btn_dialog_yesno_opt1);
-                Button b2 = (Button) d.findViewById(R.id.btn_dialog_yesno_opt2);
-
-                b2.setVisibility(View.GONE);
-                d.setCancelable(false);
-                d.show();
-
-                b1.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        d.hide();
-                        Intent gpsOptionsIntent = new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-                        context.startActivity(gpsOptionsIntent);
-
-                    }
-                });
-
-            }
-        }
 
     }
 

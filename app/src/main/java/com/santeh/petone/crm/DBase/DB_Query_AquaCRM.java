@@ -56,6 +56,18 @@ public class DB_Query_AquaCRM {
 	}
 
 
+
+	public Cursor getUserIdByLogin(String username, String password, String deviceid){
+		String query = "SELECT * FROM "+DB_Helper_AquaCRM.TBL_USERS+" WHERE "
+				+ DB_Helper_AquaCRM.CL_USERS_username + " = ? AND "
+				+ DB_Helper_AquaCRM.CL_USERS_password + " = ? AND "
+				+ DB_Helper_AquaCRM.CL_USERS_deviceid + " = ? "
+				;
+		String[] params = new String[] {username, password, deviceid };
+		return db.rawQuery(query, params);
+	}
+
+
 	/********************************************
 	 * 				DELETES						*
 	 ********************************************/
