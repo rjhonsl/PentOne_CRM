@@ -7,7 +7,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.FragmentActivity;
-import android.util.DisplayMetrics;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
@@ -149,12 +148,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                                         @Override
                                         public void onMapLongClick(LatLng latLng) {
 
-                                            DisplayMetrics metrics = new DisplayMetrics();
-                                            getWindowManager().getDefaultDisplay().getMetrics(metrics);
-                                            float heightPixels = metrics.densityDpi;
-                                            float widthPixels = metrics.density;
-                                            Helper.Common.dialogThemedOkOnly(activity, "Long Click", "pressed at " + heightPixels + " x " + widthPixels, "OK", R.color.red);
-
+                                            Intent intent = new Intent(activity, Activity_Add_ClientInfo.class);
+                                            intent.putExtra("userid", Helper.variables.getGlobalVar_currentUserID(activity)+"");
+                                            intent.putExtra("lat", latLng.latitude);
+                                            intent.putExtra("long", latLng.longitude);
+                                            startActivity(intent);
 
 
                                         }

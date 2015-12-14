@@ -57,6 +57,22 @@ public class DB_Query_AquaCRM {
 
 
 
+	public boolean isCustCodeExisting(String farmid){
+		boolean isexisting = false;
+		String query = "SELECT * FROM "+DB_Helper_AquaCRM.TBL_CLIENTINFO +" WHERE "
+				+ DB_Helper_AquaCRM.CL_CLIENTINFO_CUSTCODE + " = ? "
+				;
+		String[] params = new String[] {farmid};
+		Cursor cur = db.rawQuery(query, params);
+		if (cur!=null){
+			if (cur.getCount() > 0){
+				isexisting = true;
+			}
+		}
+		return  isexisting;
+	}
+
+
 	public Cursor getUserIdByLogin(String username, String password, String deviceid){
 		String query = "SELECT * FROM "+DB_Helper_AquaCRM.TBL_USERS+" WHERE "
 				+ DB_Helper_AquaCRM.CL_USERS_username + " = ? AND "
