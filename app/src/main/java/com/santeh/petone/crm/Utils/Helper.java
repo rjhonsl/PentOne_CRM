@@ -284,7 +284,7 @@ public class Helper {
         }
 
 
-        public static Dialog dialogOkOnly(Activity activity, String title, String prompt, String button, int resIdColor){
+        public static Dialog dialogThemedOkOnly(Activity activity, String title, String prompt, String button, int resIdColor){
             final Dialog d = new Dialog(activity);//
             d.requestWindowFeature(Window.FEATURE_NO_TITLE); //notitle
             d.setContentView(R.layout.dialog_material_themed_okonly);//Set the xml view of the dialog

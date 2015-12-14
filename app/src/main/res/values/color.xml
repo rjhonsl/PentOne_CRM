@@ -23,6 +23,7 @@
     <color name="gray_900">#2d2d2d</color>
     <color name="gray_1000">#1e1e1e</color>
     <color name="red">#ff5c5c</color>
+    <color name="red_login">#d90000</color>
     <color name="red_900">#cf0000</color>
     <color name="red_800">#e7cf0000</color>
     <color name="red_700">#c9cf0000</color>

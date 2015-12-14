@@ -109,7 +109,7 @@ public class Activity_LoginScreen extends Activity{
         txttester.setText(
                 Helper.Common.getMacAddress(context)
                         + "\n" +
-                        "update: " + versionCode + "    V." + versionName + db.getUser_Count()
+                        "update: " + versionCode + "    V." + versionName
         );
 
 
@@ -123,11 +123,9 @@ public class Activity_LoginScreen extends Activity{
                 } else {
                     chkshowpasword.setChecked(true);
                 }
-
                 toggle_showpassword();
             }
         });
-
 
 
         if (txtpassword.isFocused() || !txtpassword.getText().toString().equalsIgnoreCase("")){
@@ -268,8 +266,8 @@ public class Activity_LoginScreen extends Activity{
         txtusername.getBackground().setColorFilter(getResources().getColor(R.color.yellow), PorterDuff.Mode.SRC_IN);
         txtpassword.getBackground().setColorFilter(getResources().getColor(R.color.yellow), PorterDuff.Mode.SRC_IN);
 
-        txtusername.setText("tsr");
-        txtpassword.setText("tsr");
+        txtusername.setText("jhonar10");
+        txtpassword.setText("10");
 
     }
 
@@ -337,14 +335,14 @@ public class Activity_LoginScreen extends Activity{
                                 }
                             }, 800);
                         }else{
-                            Helper.Common.toastShort(activity, "Wrong accout credentials please try again");
+                            Helper.Common.toastShort(activity, "Account is not available. Pleas contact admin for further support.");
+                            PD.hide();
                         }
-
-
-
                     }
+                }else{
+                    Helper.Common.toastShort(activity, "Wrong account credentials. Please try again");
+                    PD.hide();
                 }
-
 //            }
 //        }
     }

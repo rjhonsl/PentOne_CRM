@@ -1,12 +1,15 @@
 package com.santeh.petone.crm.Main;
 
 import android.app.Activity;
+import android.app.Dialog;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.FragmentActivity;
 import android.util.DisplayMetrics;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageButton;
 
 import com.google.android.gms.maps.CameraUpdate;
@@ -83,6 +86,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
                     mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
                     mMap.animateCamera(zoom);
+//                    Helper.Common.toastShort(activity, Helper.variables.getGlobalVar_currentUserName(activity));
 
                 } catch (Exception e) {
                     LatLng center = new LatLng(12.832288, 122.524313);
@@ -135,7 +139,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                                         mapcircle = googleMap.addCircle(circleOptions_addLocation);
                                     }
                                     btn_closeAddMarker.setVisibility(View.VISIBLE);
-                                    Helper.Common.dialogOkOnly(activity, "Add Marker", "Long press any location inside the blue circle to add a marker.", "OK", R.color.skyblue_500);
+                                    Helper.Common.dialogThemedOkOnly(activity, "Add Marker", "Long press any location inside the blue circle to add a marker.", "OK", R.color.skyblue_500);
 
                                     if (btn_AddMarker.isEnabled()) {
                                         btn_AddMarker.setEnabled(false);
@@ -149,12 +153,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                                             getWindowManager().getDefaultDisplay().getMetrics(metrics);
                                             float heightPixels = metrics.densityDpi;
                                             float widthPixels = metrics.density;
-                                            Helper.Common.dialogOkOnly(activity, "Long Click", "pressed at " + heightPixels + " x " + widthPixels, "OK", R.color.red);
-//
+                                            Helper.Common.dialogThemedOkOnly(activity, "Long Click", "pressed at " + heightPixels + " x " + widthPixels, "OK", R.color.red);
+
+
+
                                         }
                                     });
                                 }
-                            }, 1200);
+                            }, 1400);
                         }
                     }, 200);
                 }else{Helper.Common.toastShort(activity, "Location Service not Available!");}
@@ -174,4 +180,39 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         super.onPause();
         db.close();
     }
+
+
+
+
+    @Override
+    public void onBackPressed() {
+        exitApp();
+    }
+
+    private void exitApp() {
+        final Dialog d = Helper.Common.dialogThemedYesNO(activity, "Do you wish to wish to exit the app? You will have to login next time.", "EXIT", "YES", "NO", R.color.red);
+        d.show();
+        Button yes = (Button) d.findViewById(R.id.btn_dialog_yesno_opt1);
+        Button no = (Button) d.findViewById(R.id.btn_dialog_yesno_opt2);
+
+        yes.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                d.hide();
+                finishAffinity();
+                Intent setIntent = new Intent(Intent.ACTION_MAIN);
+                setIntent.addCategory(Intent.CATEGORY_HOME);
+                setIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(setIntent);
+            }
+        });
+
+        no.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                d.hide();
+            }
+        });
+    }
+
 }
