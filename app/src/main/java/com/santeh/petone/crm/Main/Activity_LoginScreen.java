@@ -89,7 +89,7 @@ public class Activity_LoginScreen extends Activity{
         }
 
 
-        PD =  Helper.Random.initProgressDialog(activity);
+        PD =  Helper.random.initProgressDialog(activity);
         txtprogressdialog_message = (TextView) PD.findViewById(R.id.progress_message);
 
         initViews();
@@ -97,7 +97,7 @@ public class Activity_LoginScreen extends Activity{
         Typeface font_roboto = Typeface.createFromAsset(getAssets(), "Roboto-Light.ttf");
 
 
-        Helper.Common.hideKeyboardOnLoad(activity);
+        Helper.common.hideKeyboardOnLoad(activity);
 
         btnLogin.requestFocus();
         txtappname1.setTypeface(font_roboto);
@@ -107,7 +107,7 @@ public class Activity_LoginScreen extends Activity{
 
 
         txttester.setText(
-                Helper.Common.getMacAddress(context)
+                Helper.common.getMacAddress(context)
                         + "\n" +
                         "update: " + versionCode + "    V." + versionName
         );
@@ -224,12 +224,12 @@ public class Activity_LoginScreen extends Activity{
             public void onClick(View v) {
                 if ( ((txtpassword.getText().toString().equalsIgnoreCase("") || txtpassword.getText().toString().trim().equalsIgnoreCase(""))) &&
                         (txtusername.getText().toString().equalsIgnoreCase("") || txtusername.getText().toString().trim().equalsIgnoreCase(""))){
-                    Helper.Common.toastShort(activity, "Username and Password is needed to continue");
+                    Helper.common.toastShort(activity, "Username and Password is needed to continue");
                 }else if(txtpassword.getText().toString().equalsIgnoreCase("") || txtpassword.getText().toString().trim().equalsIgnoreCase("")){
-                    Helper.Common.toastShort(activity, "Password is needed to continue");
+                    Helper.common.toastShort(activity, "Password is needed to continue");
                 }else if(txtusername.getText().toString().equalsIgnoreCase("") || txtusername.getText().toString().trim().equalsIgnoreCase(""))
                 {
-                    Helper.Common.toastShort(activity,"Username is needed to continue");
+                    Helper.common.toastShort(activity,"Username is needed to continue");
                 }else
                 {
                     login();
@@ -282,8 +282,8 @@ public class Activity_LoginScreen extends Activity{
     public void login() {
 
         fusedLocation.connectToApiClient();
-        Helper.Map.isLocationAvailablePrompt(context, activity);
-//        if(Helper.Common.isNetworkAvailable(activity)) { // if network was available
+        Helper.map.isLocationAvailablePrompt(context, activity);
+//        if(Helper.common.isNetworkAvailable(activity)) { // if network was available
 ////            updatingUserDB();
 //            txtprogressdialog_message.setText("Logging in...");
 //
@@ -298,7 +298,7 @@ public class Activity_LoginScreen extends Activity{
 //            }else { //if there is an existing account in local db
                 txtprogressdialog_message.setText("Logging in...");
                 PD.show();
-                Cursor cur =  db.getUserIdByLogin(txtusername.getText().toString(), txtpassword.getText().toString(), Helper.Common.getMacAddress(context));
+                Cursor cur =  db.getUserIdByLogin(txtusername.getText().toString(), txtpassword.getText().toString(), Helper.common.getMacAddress(context));
                 if (cur.getCount() > 0 ){
                     for (int i = 0; i < cur.getCount() ; i++) {
                         while (cur.moveToNext()) {
@@ -335,12 +335,12 @@ public class Activity_LoginScreen extends Activity{
                                 }
                             }, 800);
                         }else{
-                            Helper.Common.toastShort(activity, "Account is not available. Pleas contact admin for further support.");
+                            Helper.common.toastShort(activity, "Account is not available. Pleas contact admin for further support.");
                             PD.hide();
                         }
                     }
                 }else{
-                    Helper.Common.toastShort(activity, "Wrong account credentials. Please try again");
+                    Helper.common.toastShort(activity, "Wrong account credentials. Please try again");
                     PD.hide();
                 }
 //            }
@@ -353,7 +353,7 @@ public class Activity_LoginScreen extends Activity{
     @Override
     protected void onResume() {
         super.onResume();
-        Helper.Map.isLocationAvailablePrompt(context, activity);
+        Helper.map.isLocationAvailablePrompt(context, activity);
         fusedLocation.connectToApiClient();
         db.open();
     }
@@ -371,7 +371,7 @@ public class Activity_LoginScreen extends Activity{
     }
 
     private void exitApp() {
-        final Dialog d = Helper.Common.dialogThemedYesNO(activity, "Do you wish to wish to exit the app?", "EXIT", "YES", "NO", R.color.red);
+        final Dialog d = Helper.common.dialogThemedYesNO(activity, "Do you wish to wish to exit the app?", "EXIT", "YES", "NO", R.color.red);
         d.show();
         Button yes = (Button) d.findViewById(R.id.btn_dialog_yesno_opt1);
         Button no = (Button) d.findViewById(R.id.btn_dialog_yesno_opt2);

@@ -27,10 +27,16 @@ import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.santeh.petone.crm.Obj.Var;
 import com.santeh.petone.crm.R;
+
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 
 /**
  * Created by rjhonsl on 12/9/2015.
@@ -129,7 +135,40 @@ public class Helper {
 
 
     }
-    public static class Map{
+
+
+    public static class timeConvert{
+
+
+        public static String longtoDateTime_DB_Format(long dateInMillis){
+            SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTimeInMillis(dateInMillis);
+            return formatter.format(calendar.getTime());
+        }
+
+
+    }
+
+
+
+
+    public static class map {
+
+
+        public static Marker addMarker(GoogleMap map, LatLng latlng, int iconResID,
+                                       final String clientName, String address, String id){
+
+
+            Marker marker = map.addMarker(new MarkerOptions()
+                    .title(clientName)
+                    .icon(BitmapDescriptorFactory.fromResource(iconResID))
+                    .snippet(id+"#*#"+address)
+                    .position(latlng)
+                    .draggable(false)
+            );
+            return marker;
+        }
 
 
         public  static boolean isLocationEnabled(Context context) {
@@ -184,7 +223,7 @@ public class Helper {
             } catch(Exception ex) {}
 
             if(!gps_enabled) {
-                final Dialog d = Common.dialogThemedYesNO(activity, "Location services is needed to use this application. Please turn on Location in settings", "GPS Service", "OK", "No", R.color.red);
+                final Dialog d = common.dialogThemedYesNO(activity, "Location services is needed to use this application. Please turn on Location in settings", "GPS Service", "OK", "No", R.color.red);
                 Button b1 = (Button) d.findViewById(R.id.btn_dialog_yesno_opt1);
                 Button b2 = (Button) d.findViewById(R.id.btn_dialog_yesno_opt2);
 
@@ -211,7 +250,7 @@ public class Helper {
 
 
 
-    public static class Common{
+    public static class common {
 
         public static boolean isNetworkAvailable(Context context) {
 
@@ -327,7 +366,8 @@ public class Helper {
     }///////////////////////END OF COMMON//////////////////////
 
 
-    public static class Random{
+    public static class random {
+
         public static Dialog initProgressDialog(Activity activity){
             Dialog PD = new Dialog(activity);
             PD.requestWindowFeature(Window.FEATURE_NO_TITLE);

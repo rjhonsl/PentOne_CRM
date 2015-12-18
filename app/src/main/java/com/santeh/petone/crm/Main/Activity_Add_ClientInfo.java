@@ -1,10 +1,13 @@
 package com.santeh.petone.crm.Main;
 
 import android.app.Activity;
+import android.app.Dialog;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
@@ -32,7 +35,7 @@ public class Activity_Add_ClientInfo extends FragmentActivity{
 
     DB_Query_AquaCRM db;
 
-    EditText edtFarmId, edtClientName, edtContactNumber, edtLname, edtAddress;
+    EditText edtCustomerCode, edtClientName, edtContactNumber, edtAddress;
     TextView txtnote, txttitle;
 
     @Override
@@ -49,35 +52,63 @@ public class Activity_Add_ClientInfo extends FragmentActivity{
         db.open();
 
 
-        Helper.Common.hideKeyboardOnLoad(activity);
-        if (getIntent().hasExtra("latitude")){lat= getIntent().getDoubleExtra("lat", 0);}
-        if (getIntent().hasExtra("longtitude")){lng= getIntent().getDoubleExtra("long", 0);}
+        Helper.common.hideKeyboardOnLoad(activity);
+        if (getIntent().hasExtra("lat")){lat= getIntent().getDoubleExtra("lat", 0);}
+        if (getIntent().hasExtra("long")){lng= getIntent().getDoubleExtra("long", 0);}
 
         txttitle = (TextView) findViewById(R.id.title);
         txtnote = (TextView) findViewById(R.id.txt_note);
-        edtFarmId = (EditText) findViewById(R.id.edt_farmid);
-        edtClientName = (EditText) findViewById(R.id.edt_fname);
-        edtLname = (EditText) findViewById(R.id.edt_lname);
-        edtContactNumber = (EditText) findViewById(R.id.edt_mname);
-        edtAddress = (EditText) findViewById(R.id.edt_BirthPlace);
+        edtCustomerCode = (EditText) findViewById(R.id.edt_custCode);
+        edtClientName = (EditText) findViewById(R.id.edt_clientName);
+        edtContactNumber = (EditText) findViewById(R.id.edt_contactNumber);
+        edtAddress = (EditText) findViewById(R.id.edtAddress);
 
 
         btnOK.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
-                 if (!edtFarmId.getText().toString().equalsIgnoreCase("") && !edtClientName.getText().toString().equalsIgnoreCase("") &&
-                        !edtContactNumber.getText().toString().equalsIgnoreCase("") && !edtLname.getText().toString().equalsIgnoreCase("") &&
-                        !edtAddress.getText().toString().equalsIgnoreCase("")){
-                     boolean isExisting = db.isCustCodeExisting(edtFarmId.getText().toString());
+                 if (!edtCustomerCode.getText().toString().equalsIgnoreCase("") &&
+                         !edtClientName.getText().toString().equalsIgnoreCase("") &&
+                         !edtContactNumber.getText().toString().equalsIgnoreCase("") &&
+                         !edtAddress.getText().toString().equalsIgnoreCase("")){
+                     boolean isExisting = db.isCustCodeExisting(edtCustomerCode.getText().toString());
                      if (isExisting) {
-                         Helper.Common.dialogThemedOkOnly(activity, "Oops", "Farm ID already exist. \n\nYou could only have one Farm ID per Customer", "OK", R.color.darkgreen_800);
+                         Helper.common.dialogThemedOkOnly(activity, "Oops", "Customer Code already exist. \n\nYou could only have one input Customer Code once.", "OK", R.color.darkgreen_800);
                      }else{
+                         final Dialog d = Helper.common.dialogThemedYesNO(activity, "Save Client Information to device storage?", "Save", "NO", "YES", R.color.blue);
+                         Button yes = (Button) d.findViewById(R.id.btn_dialog_yesno_opt2);
+                         Button no = (Button) d.findViewById(R.id.btn_dialog_yesno_opt1);
+                         no.setOnClickListener(new View.OnClickListener() {
+                             @Override
+                             public void onClick(View v) {
+                                d.hide();
+                             }
+                         });
 
-                         finish();
+                         yes.setOnClickListener(new View.OnClickListener() {
+                             @Override
+                             public void onClick(View v) {
+
+                                 String[] latlng = {lat+"", lng+""};
+
+                                 Intent intent = new Intent(activity, MapsActivity.class);
+                                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+                                 intent.putExtra("fromAddClient", "1");
+                                 intent.putExtra("latlng", latlng);
+                                 String currentDateTime = Helper.timeConvert.longtoDateTime_DB_Format(System.currentTimeMillis());
+                                 db.insertClientInfo(String.valueOf(lat), String.valueOf(lng), edtAddress.getText().toString(), edtClientName.getText().toString(), edtCustomerCode.getText().toString(),
+                                         edtContactNumber.getText().toString(), currentDateTime, Helper.variables.getGlobalVar_currentUserID(activity)+"");
+
+                                 setResult(MapsActivity.requestCODE_addMarker, intent);
+                                 finish();
+
+                             }
+                         });
+
                      }
                 } else {
-                    Helper.Common.dialogThemedOkOnly(activity, "Warning", "You must complete fields with '*' to continue.", "OK", R.color.red);
+                    Helper.common.dialogThemedOkOnly(activity, "Warning", "You must complete fields with '*' to continue.", "OK", R.color.red);
                 }
             }
         });

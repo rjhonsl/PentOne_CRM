@@ -1,5 +1,6 @@
 package com.santeh.petone.crm.DBase;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -38,6 +39,23 @@ public class DB_Query_AquaCRM {
 	 ********************************************/
 
 
+	public long insertClientInfo(String lat, String lng, String address, String clientName, String custCode, String contactNumber, String dateAdded, String addedBy){
+
+		ContentValues values = new ContentValues();
+		values.put(DB_Helper_AquaCRM.CL_CLIENTINFO_LAT, lat);
+		values.put(DB_Helper_AquaCRM.CL_CLIENTINFO_LNG, lng);
+		values.put(DB_Helper_AquaCRM.CL_CLIENTINFO_ADDRESS, address);
+		values.put(DB_Helper_AquaCRM.CL_CLIENTINFO_CLIENT_NAME, clientName);
+		values.put(DB_Helper_AquaCRM.CL_CLIENTINFO_CUSTCODE, custCode);
+		values.put(DB_Helper_AquaCRM.CL_CLIENTINFO_C_NUMBER, contactNumber);
+		values.put(DB_Helper_AquaCRM.CL_CLIENTINFO_dateAdded, dateAdded);
+		values.put(DB_Helper_AquaCRM.CL_CLIENTINFO_addedby, addedBy);
+		values.put(DB_Helper_AquaCRM.CL_CLIENTINFO_IsPosted, 0);
+
+		return  db.insert(DB_Helper_AquaCRM.TBL_CLIENTINFO, null, values);
+	}
+
+
 
 	/********************************************
 	 * 				VALIDATIONS					*
@@ -70,6 +88,16 @@ public class DB_Query_AquaCRM {
 			}
 		}
 		return  isexisting;
+	}
+
+	public Cursor getClientInfoByUserID(String userID){
+		String query = "SELECT * FROM "+DB_Helper_AquaCRM.TBL_CLIENTINFO+" WHERE "
+				+ DB_Helper_AquaCRM.CL_CLIENTINFO_addedby + " = ? "
+				;
+
+
+		String[] params = new String[] {userID};
+		return db.rawQuery(query, params);
 	}
 
 

@@ -4,12 +4,14 @@ import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.FragmentActivity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.TextView;
 
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -19,6 +21,7 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.santeh.petone.crm.DBase.DB_Helper_AquaCRM;
 import com.santeh.petone.crm.DBase.DB_Query_AquaCRM;
 import com.santeh.petone.crm.R;
@@ -39,6 +42,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     DB_Helper_AquaCRM dbHelper;
     DB_Query_AquaCRM db;
+    public static int requestCODE_addMarker = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,6 +52,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+
 
         activity = this;
         context = MapsActivity.this;
@@ -85,11 +90,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
                     mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
                     mMap.animateCamera(zoom);
-//                    Helper.Common.toastShort(activity, Helper.variables.getGlobalVar_currentUserName(activity));
+//                    Helper.common.toastShort(activity, Helper.variables.getGlobalVar_currentUserName(activity));
 
                 } catch (Exception e) {
                     LatLng center = new LatLng(12.832288, 122.524313);
-                    Helper.Map.moveCameraAnimate(googleMap, center, 6);
+                    Helper.map.moveCameraAnimate(googleMap, center, 6);
                 }
             }
         }, 200);
@@ -98,19 +103,21 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         btn_closeAddMarker.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(mapcircle!=null){
-                    mapcircle.remove();
-                    mapcircle = null;
-                }
+                closerAddingMarker();
+            }
+        });
 
-                btn_closeAddMarker.setVisibility(View.GONE);
-                btn_AddMarker.setEnabled(true);
-                mMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
-                    @Override
-                    public void onMapLongClick(LatLng latLng) {
 
-                    }
-                });
+        mMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
+            @Override
+            public void onInfoWindowClick(Marker marker) {
+                String[] splitted = marker.getSnippet().split("#*#");
+                String id = splitted[0];
+
+//                Intent intent = new Intent(MapsActivity.this, MainActivity.class);
+//                intent.putExtra("id", id);
+//                startActivity(intent);
+
             }
         });
 
@@ -118,14 +125,16 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         btn_AddMarker.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (Helper.Map.isLocationEnabled(context)){
+                if (Helper.map.isLocationEnabled(context)){
+                    fusedLocation.disconnectFromApiClient();
                     fusedLocation.connectToApiClient();
+
                     final Handler handler = new Handler();
                     handler.postDelayed(new Runnable() {
                         @Override
                         public void run() {
                             final LatLng center = fusedLocation.getLastKnowLocation();
-                            Helper.Map.moveCameraAnimate(googleMap, center, 19);
+                            Helper.map.moveCameraAnimate(googleMap, center, 19);
 
                             final Handler handler1 = new Handler();
                             handler1.postDelayed(new Runnable() {
@@ -133,12 +142,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                                 public void run() {
 
                                     if (mapcircle == null || !mapcircle.isVisible()){
-                                        circleOptions_addLocation = Helper.Map.addCircle(activity, center, 1, R.color.skyblue_20,
+                                        circleOptions_addLocation = Helper.map.addCircle(activity, center, 1, R.color.skyblue_20,
                                                 R.color.skyblue_20, 1000);
                                         mapcircle = googleMap.addCircle(circleOptions_addLocation);
                                     }
                                     btn_closeAddMarker.setVisibility(View.VISIBLE);
-                                    Helper.Common.dialogThemedOkOnly(activity, "Add Marker", "Long press any location inside the blue circle to add a marker.", "OK", R.color.skyblue_500);
+                                    Helper.common.dialogThemedOkOnly(activity, "Add Marker", "Long press any location inside the blue circle to add a marker.", "OK", R.color.skyblue_500);
 
                                     if (btn_AddMarker.isEnabled()) {
                                         btn_AddMarker.setEnabled(false);
@@ -152,7 +161,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                                             intent.putExtra("userid", Helper.variables.getGlobalVar_currentUserID(activity)+"");
                                             intent.putExtra("lat", latLng.latitude);
                                             intent.putExtra("long", latLng.longitude);
-                                            startActivity(intent);
+                                            closerAddingMarker();
+                                            startActivityForResult(intent, requestCODE_addMarker);
 
 
                                         }
@@ -161,7 +171,62 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                             }, 1400);
                         }
                     }, 200);
-                }else{Helper.Common.toastShort(activity, "Location Service not Available!");}
+                }else{
+                    Helper.common.toastShort(activity, "Location Service not Available!");}
+
+            }
+        });
+
+        showAllMarker(googleMap);
+    }
+
+    private void showAllMarker(GoogleMap googleMap) {
+        db.open();
+        Cursor cur = db.getClientInfoByUserID(Helper.variables.getGlobalVar_currentUserID(activity)+"");
+        if (cur.getCount() > 0 ){
+            while (cur.moveToNext()){
+                LatLng latLng = new LatLng(
+                        Double.parseDouble(cur.getString(cur.getColumnIndex(DB_Helper_AquaCRM.CL_CLIENTINFO_LAT))),
+                        Double.parseDouble(cur.getString(cur.getColumnIndex(DB_Helper_AquaCRM.CL_CLIENTINFO_LNG))));
+
+                String address = cur.getString(cur.getColumnIndex(DB_Helper_AquaCRM.CL_CLIENTINFO_ADDRESS));
+                String clientName = cur.getString(cur.getColumnIndex(DB_Helper_AquaCRM.CL_CLIENTINFO_CLIENT_NAME));
+                String id = cur.getString(cur.getColumnIndex(DB_Helper_AquaCRM.CL_CLIENTINFO_ID));
+
+                googleMap.setInfoWindowAdapter(new CustomerInfoWindow());
+                Helper.map.addMarker(googleMap, latLng, R.drawable.ic_pet24, clientName, address, id);
+            }
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (resultCode == requestCODE_addMarker){
+            if (data.hasExtra("fromAddClient")){
+                mMap.clear();
+
+                showAllMarker(mMap);
+
+                String[] latlng = data.getStringArrayExtra("latlng");
+                LatLng ltlg = new LatLng(Double.parseDouble(latlng[0]), Double.parseDouble(latlng[1]));
+                Helper.map.moveCameraAnimate(mMap, ltlg, 18);
+            }
+        }
+    }
+
+    private void closerAddingMarker() {
+        if(mapcircle!=null){
+            mapcircle.remove();
+            mapcircle = null;
+        }
+
+        btn_closeAddMarker.setVisibility(View.GONE);
+        btn_AddMarker.setEnabled(true);
+        mMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
+            @Override
+            public void onMapLongClick(LatLng latLng) {
 
             }
         });
@@ -187,8 +252,34 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         exitApp();
     }
 
+
+    class CustomerInfoWindow implements GoogleMap.InfoWindowAdapter {
+        private final View myContentsView;
+        CustomerInfoWindow() {
+            myContentsView = getLayoutInflater().inflate(R.layout.infowindow_customer_address, null);
+        }
+
+        @Override
+        public View getInfoWindow(Marker marker) {
+            TextView tvSnippet = ((TextView) myContentsView.findViewById(R.id.address));
+            TextView tvTitle = ((TextView) myContentsView.findViewById(R.id.title));
+            String[] splitted = marker.getSnippet().split("#*#");
+            String id = splitted[0] +" "+ splitted[1];
+
+            tvSnippet.setText(id);
+            tvTitle.setText( marker.getTitle());
+            return myContentsView;
+        }
+
+
+        @Override
+        public View getInfoContents(Marker marker) {
+            return null;
+        }
+    }
+
     private void exitApp() {
-        final Dialog d = Helper.Common.dialogThemedYesNO(activity, "Do you wish to wish to exit the app? You will have to login next time.", "EXIT", "YES", "NO", R.color.red);
+        final Dialog d = Helper.common.dialogThemedYesNO(activity, "Do you wish to wish to exit the app? You will have to login next time.", "EXIT", "YES", "NO", R.color.red);
         d.show();
         Button yes = (Button) d.findViewById(R.id.btn_dialog_yesno_opt1);
         Button no = (Button) d.findViewById(R.id.btn_dialog_yesno_opt2);
@@ -212,5 +303,4 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }
         });
     }
-
 }
